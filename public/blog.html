@@ -3,213 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blog</title>
-
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
+<title>Blog List</title>
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-header, footer {
-    background-color: #003366;
-    color: white;
-    padding: 15px 20px;
-    text-align: center;
-}
-.container {
-    display: flex;
-    flex: 1;
-    flex-direction: row;
-}
-nav {
-    width: 220px;
-    background-color: #f0f0f0;
-    padding: 20px;
-    box-sizing: border-box;
-}
-nav a {
-    display: block;
-    margin: 10px 0;
-    text-decoration: none;
-    color: #003366;
-    font-weight: bold;
-}
-nav a:hover { color: #0066cc; }
-main {
-    flex: 1;
-    padding: 20px;
-    box-sizing: border-box;
-}
-#blog-list a {
-    display: block;
-    padding: 8px 0;
-    text-decoration: none;
-    color: #003366;
-}
-#blog-list a:hover { color: #0066cc; }
-#blog-content {
-    margin-top: 20px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-}
-.back-button {
-    display: inline-block;
-    margin-bottom: 20px;
-    padding: 5px 12px;
-    background-color: #003366;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-}
-.back-button:hover { background-color: #0066cc; }
-@media (max-width: 768px) {
-    .container { flex-direction: column; }
-    nav { width: 100%; margin-bottom: 20px; }
-}
+body { font-family: Arial, sans-serif; margin:0; padding:0; }
+header, footer { background:#003366; color:white; padding:15px; text-align:center; }
+.container { max-width:900px; margin:20px auto; padding:0 15px; }
+h1 { margin-bottom:20px; }
+a.blog-link { display:block; margin:8px 0; color:#003366; font-weight:bold; text-decoration:none; }
+a.blog-link:hover { color:#0066cc; }
 </style>
 </head>
 <body>
 
 <header>
-    <h1>Your Website Header</h1>
+    <h1>My Blog</h1>
 </header>
 
 <div class="container">
-<nav>
-    <a href="index.html">Home</a>
-    <a href="blog.html">Blog</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-</nav>
-
-<main>
-    <h2>Blog Posts</h2>
-    <div id="blog-list">Loading posts...</div>
-    <div id="blog-content"></div>
-</main>
+    <h2>All Blog Posts</h2>
+    <div id="blog-list">Loading blogs...</div>
 </div>
 
 <footer>
-    &copy; 2025 Your Website Footer
+    &copy; 2025 Your Website
 </footer>
 
 <script>
 const BLOG_FOLDER = "/blogs/";
-const MAX_POSTS = 99; // adjust as needed
+const MAX_BLOGS = 99; // adjust if needed
 
-function getQueryParam(name) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(name);
-}
-
-// Check if file exists
-async function fileExists(url) {
+// Fetch first line (# Title) from Markdown file
+async function getTitle(filename){
     try {
-        const res = await fetch(url, { method: 'HEAD' });
-        return res.ok;
-    } catch(e) { return false; }
+        const res = await fetch(BLOG_FOLDER + filename);
+        if(!res.ok) return filename.replace(".md","");
+        const text = await res.text();
+        const match = text.match(/^# (.+)$/m);
+        return match ? match[1] : filename.replace(".md","");
+    } catch(e) {
+        return filename.replace(".md","");
+    }
 }
 
-// Discover all posts dynamically
-async function discoverPosts() {
-    const posts = [];
-    for(let i=1; i<=MAX_POSTS; i++){
+async function loadBlogList(){
+    const listDiv = document.getElementById("blog-list");
+    listDiv.innerHTML = "";
+
+    for(let i=1; i<=MAX_BLOGS; i++){
         const filename = `blog_${String(i).padStart(2,'0')}.md`;
         const url = BLOG_FOLDER + filename;
-        if(await fileExists(url)){
-            let title = filename.replace(".md","");
-            try{
-                const res = await fetch(url);
-                const text = await res.text();
-                const match = text.match(/^# (.+)$/m);
-                if(match) title = match[1];
-            } catch(e){}
-            posts.push({ file: filename, title });
-        }
+        try{
+            const res = await fetch(url,{ method:'HEAD' });
+            if(res.ok){
+                const title = await getTitle(filename);
+                const a = document.createElement("a");
+                a.href = "blogdetails.html?post=" + encodeURIComponent(filename);
+                a.textContent = title;
+                a.className = "blog-link";
+                listDiv.appendChild(a);
+            }
+        }catch(e){}
     }
-    return posts;
-}
 
-// Render blog list
-function renderPostList(posts){
-    const listDiv = document.getElementById("blog-list");
-    if(posts.length === 0){
-        listDiv.innerHTML = "<p>No blog posts found.</p>";
-        return;
-    }
-    listDiv.innerHTML = "";
-    posts.forEach(post => {
-        const a = document.createElement("a");
-        a.href = "blog.html?post=" + encodeURIComponent(post.file);
-        a.textContent = post.title;
-        a.onclick = (e) => {
-            e.preventDefault();
-            history.pushState({ post: post.file }, "", "blog.html?post=" + encodeURIComponent(post.file));
-            loadPost(post.file);
-        };
-        listDiv.appendChild(a);
-    });
-}
-
-// Show back button
-function showBackButton() {
-    const contentDiv = document.getElementById("blog-content");
-    const backBtn = document.createElement("a");
-    backBtn.className = "back-button";
-    backBtn.href = "blog.html";
-    backBtn.textContent = "← Back to Blog List";
-    backBtn.onclick = (e) => {
-        e.preventDefault();
-        history.pushState({}, "", "blog.html");
-        contentDiv.innerHTML = "";
-        document.getElementById("blog-list").style.display = "block";
-    };
-    contentDiv.insertBefore(backBtn, contentDiv.firstChild);
-}
-
-// Load a post
-async function loadPost(filename){
-    document.getElementById("blog-list").style.display = "none";
-    const contentDiv = document.getElementById("blog-content");
-    contentDiv.innerHTML = "<p>Loading...</p>";
-    try{
-        const res = await fetch(BLOG_FOLDER + filename);
-        const text = await res.text();
-        contentDiv.innerHTML = marked.parse(text);
-        showBackButton();
-        window.scrollTo({top:0, behavior:'smooth'});
-    } catch(e){
-        contentDiv.innerHTML = "<p>Failed to load blog.</p>";
-        showBackButton();
+    if(listDiv.children.length === 0){
+        listDiv.innerHTML = "<p>No blogs found.</p>";
     }
 }
 
-// Handle browser back/forward
-window.addEventListener("popstate", (event) => {
-    const postQuery = getQueryParam("post");
-    if(postQuery){
-        loadPost(postQuery);
-    } else {
-        document.getElementById("blog-list").style.display = "block";
-        document.getElementById("blog-content").innerHTML = "";
-    }
-});
-
-// Initialize
-(async ()=>{
-    const posts = await discoverPosts();
-    renderPostList(posts);
-    const postQuery = getQueryParam("post");
-    if(postQuery){
-        loadPost(postQuery);
-    }
-})();
+loadBlogList();
 </script>
 
 </body>
