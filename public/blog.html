@@ -5,113 +5,181 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Blog</title>
 
-<!-- Simple styling -->
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    h1 {
-        margin-bottom: 20px;
-    }
-    #blog-list a {
-        display: block;
-        padding: 10px 0;
-        font-size: 1.1em;
-        text-decoration: none;
-        color: blue;
-    }
-    #blog-list a:hover {
-        text-decoration: underline;
-    }
-    #blog-content {
-        margin-top: 40px;
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-    }
-</style>
-
 <!-- Load Markdown rendering library -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+/* General layout similar to index.html */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header, footer {
+    background-color: #003366; /* change to match index.html */
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+}
+
+.container {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+}
+
+/* Left menu */
+nav {
+    width: 220px;
+    background-color: #f0f0f0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+nav a {
+    display: block;
+    margin: 10px 0;
+    text-decoration: none;
+    color: #003366;
+    font-weight: bold;
+}
+
+nav a:hover {
+    color: #0066cc;
+}
+
+/* Main content */
+main {
+    flex: 1;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#blog-list a {
+    display: block;
+    padding: 8px 0;
+    text-decoration: none;
+    color: #003366;
+}
+
+#blog-list a:hover {
+    color: #0066cc;
+}
+
+#blog-content {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    nav {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}
+</style>
 </head>
 <body>
 
-<h1>Blog Posts</h1>
+<header>
+    <h1>Your Website Header</h1>
+</header>
 
-<!-- Blog Links -->
-<div id="blog-list">Loading posts...</div>
+<div class="container">
+    <nav>
+        <!-- replicate index.html left menu here -->
+        <a href="index.html">Home</a>
+        <a href="blog.html">Blog</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+    </nav>
 
-<!-- Blog Content Viewer -->
-<div id="blog-content"></div>
+    <main>
+        <h2>Blog Posts</h2>
+        <div id="blog-list">Loading posts...</div>
+        <div id="blog-content"></div>
+    </main>
+</div>
+
+<footer>
+    &copy; 2025 Your Website Footer
+</footer>
 
 <script>
-// ===== SETTINGS =====
-const BLOG_FOLDER = "/blogs/";     // location of md files
-const MAX_POSTS = 200;             // safety limit - adjust as needed
+// Settings
+const BLOG_FOLDER = "/blogs/";
+const MAX_POSTS = 200;
 
-// ===== STEP 1: Discover Markdown files =====
-// Static hosting cannot read folder contents, so we "guess" filenames (blog_01.md, blog_02.md...)
+// Discover posts
 async function discoverPosts() {
-    let posts = [];
+    const posts = [];
     for (let i = 1; i <= MAX_POSTS; i++) {
         const file = `blog_${String(i).padStart(2, '0')}.md`;
         const url = BLOG_FOLDER + file;
-
         try {
             const res = await fetch(url);
             if (res.ok) posts.push(file);
-        } catch (e) { }
+        } catch(e){}
     }
     return posts;
 }
 
-// ===== STEP 2: Render links =====
-function renderPostList(postFiles) {
-    const listDiv = document.getElementById("blog-list");
+// Extract first-level heading as title
+async function getTitleFromMarkdown(file) {
+    try {
+        const res = await fetch(BLOG_FOLDER + file);
+        const text = await res.text();
+        const match = text.match(/^# (.+)$/m);
+        return match ? match[1] : file.replace(".md", "");
+    } catch (e) {
+        return file.replace(".md", "");
+    }
+}
 
+// Render list
+async function renderPostList(postFiles) {
+    const listDiv = document.getElementById("blog-list");
     if (postFiles.length === 0) {
         listDiv.innerHTML = "<p>No blog posts found.</p>";
         return;
     }
-
     listDiv.innerHTML = "";
-    postFiles.forEach(file => {
+    for (const file of postFiles) {
+        const title = await getTitleFromMarkdown(file);
         const a = document.createElement("a");
         a.href = "#";
-        a.textContent = file.replace(".md", "").replace(/_/g, " ").toUpperCase();
+        a.textContent = title;
         a.onclick = () => loadPost(file);
         listDiv.appendChild(a);
-    });
+    }
 }
 
-// ===== STEP 3: Load + Render Markdown =====
+// Load and render blog
 async function loadPost(filename) {
     const contentDiv = document.getElementById("blog-content");
     contentDiv.innerHTML = "<p>Loading...</p>";
-
-    const url = BLOG_FOLDER + filename;
-
     try {
-        const res = await fetch(url);
+        const res = await fetch(BLOG_FOLDER + filename);
         const text = await res.text();
-
-        // Convert markdown → HTML
-        const html = marked.parse(text);
-        contentDiv.innerHTML = html;
+        contentDiv.innerHTML = marked.parse(text);
         window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
         contentDiv.innerHTML = "<p>Failed to load blog.</p>";
     }
 }
 
-// ===== MAIN STARTUP =====
+// Initialize
 (async () => {
     const posts = await discoverPosts();
-    renderPostList(posts);
+    await renderPostList(posts);
 })();
 </script>
 
