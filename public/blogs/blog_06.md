@@ -5,7 +5,7 @@ consistency, and long-term thinking. This article explores a key concept
 of personal finance based on practical principles that anyone can apply,
 regardless of income level. By understanding how money habits influence
 long-term outcomes, individuals can better align their financial
-decisions with their goals.
+decisions with their goals. 
 
 A financial planning calculator can help simplify complex decisions by
 showing how savings, investments, and expenses compound over time.
