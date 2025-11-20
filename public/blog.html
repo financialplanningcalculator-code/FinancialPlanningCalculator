@@ -44,6 +44,24 @@
         font-size: 1.1em;
     }
 
+    /* ===== Back Button (copied from blogdetails.html) ===== */
+    .back-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 1em;
+        font-weight: 600;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 25px;
+    }
+    .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102,126,234,0.3);
+    }
+
     /* ===== Blog List ===== */
     .content-wrapper {
         padding: 30px;
@@ -100,6 +118,10 @@
     </div>
 
     <div class="content-wrapper">
+
+        <!-- ▼ NEW BACK BUTTON ADDED HERE ▼ -->
+        <a href="index.html" class="back-btn">← Back to Calculators</a>
+
         <h2 style="color:#2c3e50; margin-bottom:15px;">All Blog Posts</h2>
         <div id="blog-list">Loading blogs…</div>
     </div>
