@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Blog</title>
 
-<!-- Load Markdown rendering library -->
+<!-- Markdown library -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <style>
-/* General layout similar to index.html */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -19,7 +18,7 @@ body {
 }
 
 header, footer {
-    background-color: #003366; /* change to match index.html */
+    background-color: #003366;
     color: white;
     padding: 15px 20px;
     text-align: center;
@@ -31,7 +30,6 @@ header, footer {
     flex-direction: row;
 }
 
-/* Left menu */
 nav {
     width: 220px;
     background-color: #f0f0f0;
@@ -51,7 +49,6 @@ nav a:hover {
     color: #0066cc;
 }
 
-/* Main content */
 main {
     flex: 1;
     padding: 20px;
@@ -95,7 +92,6 @@ main {
 
 <div class="container">
     <nav>
-        <!-- replicate index.html left menu here -->
         <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
         <a href="about.html">About</a>
@@ -114,52 +110,47 @@ main {
 </footer>
 
 <script>
-// Settings
 const BLOG_FOLDER = "/blogs/";
-const MAX_POSTS = 200;
 
-// Discover posts
-async function discoverPosts() {
-    const posts = [];
-    for (let i = 1; i <= MAX_POSTS; i++) {
-        const file = `blog_${String(i).padStart(2, '0')}.md`;
-        const url = BLOG_FOLDER + file;
-        try {
-            const res = await fetch(url);
-            if (res.ok) posts.push(file);
-        } catch(e){}
-    }
-    return posts;
-}
-
-// Extract first-level heading as title
-async function getTitleFromMarkdown(file) {
+// Load JSON index of blog posts
+async function getPosts() {
     try {
-        const res = await fetch(BLOG_FOLDER + file);
-        const text = await res.text();
-        const match = text.match(/^# (.+)$/m);
-        return match ? match[1] : file.replace(".md", "");
+        const res = await fetch(BLOG_FOLDER + "index.json");
+        const posts = await res.json();
+
+        // For each post, fetch first heading from markdown for title
+        for (const post of posts) {
+            try {
+                const mdRes = await fetch(BLOG_FOLDER + post.file);
+                const mdText = await mdRes.text();
+                const match = mdText.match(/^# (.+)$/m);
+                post.title = match ? match[1] : post.file.replace(".md", "");
+            } catch(e){
+                post.title = post.file.replace(".md", "");
+            }
+        }
+        return posts;
     } catch (e) {
-        return file.replace(".md", "");
+        console.error("Failed to load blog index:", e);
+        return [];
     }
 }
 
-// Render list
-async function renderPostList(postFiles) {
+// Render blog list
+function renderPostList(posts) {
     const listDiv = document.getElementById("blog-list");
-    if (postFiles.length === 0) {
+    if (!posts || posts.length === 0) {
         listDiv.innerHTML = "<p>No blog posts found.</p>";
         return;
     }
     listDiv.innerHTML = "";
-    for (const file of postFiles) {
-        const title = await getTitleFromMarkdown(file);
+    posts.forEach(post => {
         const a = document.createElement("a");
         a.href = "#";
-        a.textContent = title;
-        a.onclick = () => loadPost(file);
+        a.textContent = post.title;
+        a.onclick = () => loadPost(post.file);
         listDiv.appendChild(a);
-    }
+    });
 }
 
 // Load and render blog
@@ -178,8 +169,8 @@ async function loadPost(filename) {
 
 // Initialize
 (async () => {
-    const posts = await discoverPosts();
-    await renderPostList(posts);
+    const posts = await getPosts();
+    renderPostList(posts);
 })();
 </script>
 
