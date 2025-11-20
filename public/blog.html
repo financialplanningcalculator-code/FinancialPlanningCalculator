@@ -103,13 +103,12 @@ main {
 const BLOG_FOLDER = "/blogs/";
 const MAX_POSTS = 99; // adjust as needed
 
-// Helper: get URL query parameter
 function getQueryParam(name) {
     const params = new URLSearchParams(window.location.search);
     return params.get(name);
 }
 
-// Try to fetch a file to see if it exists
+// Check if file exists
 async function fileExists(url) {
     try {
         const res = await fetch(url, { method: 'HEAD' });
@@ -117,31 +116,30 @@ async function fileExists(url) {
     } catch(e) { return false; }
 }
 
-// Load list of posts dynamically
+// Discover all posts dynamically
 async function discoverPosts() {
     const posts = [];
-    for (let i=1; i<=MAX_POSTS; i++) {
+    for(let i=1; i<=MAX_POSTS; i++){
         const filename = `blog_${String(i).padStart(2,'0')}.md`;
         const url = BLOG_FOLDER + filename;
-        if(await fileExists(url)) {
-            // Fetch first line for title
-            let title = filename.replace(".md", "");
-            try {
+        if(await fileExists(url)){
+            let title = filename.replace(".md","");
+            try{
                 const res = await fetch(url);
                 const text = await res.text();
                 const match = text.match(/^# (.+)$/m);
                 if(match) title = match[1];
-            } catch(e) {}
+            } catch(e){}
             posts.push({ file: filename, title });
         }
     }
     return posts;
 }
 
-// Render post list
-function renderPostList(posts) {
+// Render blog list
+function renderPostList(posts){
     const listDiv = document.getElementById("blog-list");
-    if(posts.length === 0) {
+    if(posts.length === 0){
         listDiv.innerHTML = "<p>No blog posts found.</p>";
         return;
     }
@@ -150,35 +148,65 @@ function renderPostList(posts) {
         const a = document.createElement("a");
         a.href = "blog.html?post=" + encodeURIComponent(post.file);
         a.textContent = post.title;
+        a.onclick = (e) => {
+            e.preventDefault();
+            history.pushState({ post: post.file }, "", "blog.html?post=" + encodeURIComponent(post.file));
+            loadPost(post.file);
+        };
         listDiv.appendChild(a);
     });
 }
 
-// Load blog content
-async function loadPost(filename) {
-    const listDiv = document.getElementById("blog-list");
-    listDiv.style.display = "none";
-
+// Show back button
+function showBackButton() {
     const contentDiv = document.getElementById("blog-content");
-    contentDiv.innerHTML = '<a class="back-button" href="blog.html">&larr; Back to Blog List</a><p>Loading...</p>';
+    const backBtn = document.createElement("a");
+    backBtn.className = "back-button";
+    backBtn.href = "blog.html";
+    backBtn.textContent = "← Back to Blog List";
+    backBtn.onclick = (e) => {
+        e.preventDefault();
+        history.pushState({}, "", "blog.html");
+        contentDiv.innerHTML = "";
+        document.getElementById("blog-list").style.display = "block";
+    };
+    contentDiv.insertBefore(backBtn, contentDiv.firstChild);
+}
 
-    try {
+// Load a post
+async function loadPost(filename){
+    document.getElementById("blog-list").style.display = "none";
+    const contentDiv = document.getElementById("blog-content");
+    contentDiv.innerHTML = "<p>Loading...</p>";
+    try{
         const res = await fetch(BLOG_FOLDER + filename);
         const text = await res.text();
-        contentDiv.innerHTML = '<a class="back-button" href="blog.html">&larr; Back to Blog List</a>' + marked.parse(text);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch(e) {
-        contentDiv.innerHTML = '<a class="back-button" href="blog.html">&larr; Back to Blog List</a><p>Failed to load blog.</p>';
+        contentDiv.innerHTML = marked.parse(text);
+        showBackButton();
+        window.scrollTo({top:0, behavior:'smooth'});
+    } catch(e){
+        contentDiv.innerHTML = "<p>Failed to load blog.</p>";
+        showBackButton();
     }
 }
 
-// Initialize 
-(async () => {
+// Handle browser back/forward
+window.addEventListener("popstate", (event) => {
+    const postQuery = getQueryParam("post");
+    if(postQuery){
+        loadPost(postQuery);
+    } else {
+        document.getElementById("blog-list").style.display = "block";
+        document.getElementById("blog-content").innerHTML = "";
+    }
+});
+
+// Initialize
+(async ()=>{
     const posts = await discoverPosts();
     renderPostList(posts);
-
     const postQuery = getQueryParam("post");
-    if(postQuery) {
+    if(postQuery){
         loadPost(postQuery);
     }
 })();
