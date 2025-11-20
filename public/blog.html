@@ -1,149 +1,119 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Blogs</title>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <style>
-    body{font-family:system-ui, -apple-system, Roboto, Arial; max-width:900px;margin:24px auto;padding:0 16px}
-    h1{margin-bottom:8px}
-    .note{color:#666;font-size:14px;margin-bottom:12px}
-    .list a{display:block;padding:10px;border-bottom:1px solid #eee;color:#0366d6;text-decoration:none}
-    .list a:hover{text-decoration:underline}
-    .content{margin-top:18px}
-    .back{display:inline-block;margin-top:12px;color:#0366d6;cursor:pointer}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Blog</title>
+
+<!-- Simple styling -->
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    h1 {
+        margin-bottom: 20px;
+    }
+    #blog-list a {
+        display: block;
+        padding: 10px 0;
+        font-size: 1.1em;
+        text-decoration: none;
+        color: blue;
+    }
+    #blog-list a:hover {
+        text-decoration: underline;
+    }
+    #blog-content {
+        margin-top: 40px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+    }
+</style>
+
+<!-- Load Markdown rendering library -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <h1>Blog</h1>
-  <div class="note">Listing posts from <code>/Blogs/</code> in this repository (GitHub Pages friendly).</div>
 
-  <div id="list">Loading posts…</div>
-  <article id="post" style="display:none"></article>
+<h1>Blog Posts</h1>
+
+<!-- Blog Links -->
+<div id="blog-list">Loading posts...</div>
+
+<!-- Blog Content Viewer -->
+<div id="blog-content"></div>
 
 <script>
-(async function(){
-  // ----- CONFIGURE these -----
-  const OWNER = "financialplanningcalculator-code"; // <--- your GitHub owner/org
-  const REPO = "FinancialPlanningCalculator";      // <--- your repo name
-  const BRANCH = "main";                           // <--- branch where public/ lives
-  // If Blogs folder is at public/Blogs in the repo, use this API path:
-  const API_PATH = "public/Blogs";
-  // Optional: fallback list you can edit directly if other methods fail:
-  const FALLBACK_FILES = []; // e.g. ["blog_01.md","blog_02.md"]
+// ===== SETTINGS =====
+const BLOG_FOLDER = "/blogs/";     // location of md files
+const MAX_POSTS = 200;             // safety limit - adjust as needed
 
-  // If you prefer to use a GitHub token to raise rate limits, set it here (NOT recommended in public repos).
-  // const GITHUB_TOKEN = "ghp_...."; // optional: uncomment and paste token for private repos / higher rate-limit
-  const GITHUB_TOKEN = null;
+// ===== STEP 1: Discover Markdown files =====
+// Static hosting cannot read folder contents, so we "guess" filenames (blog_01.md, blog_02.md...)
+async function discoverPosts() {
+    let posts = [];
+    for (let i = 1; i <= MAX_POSTS; i++) {
+        const file = `blog_${String(i).padStart(2, '0')}.md`;
+        const url = BLOG_FOLDER + file;
 
-  const listEl = document.getElementById('list');
-  const postEl = document.getElementById('post');
-
-  // 1) Try a static index.json under /Blogs (works great on GitHub Pages if you commit it)
-  async function tryIndexJson(){
-    try {
-      const r = await fetch('./Blogs/index.json', { cache: 'no-store' });
-      if(!r.ok) throw new Error('no index.json');
-      const arr = await r.json();
-      if(!Array.isArray(arr)) throw new Error('index.json must be an array');
-      return arr.filter(f => /\.(md|markdown|mdx|html)$/i.test(f));
-    } catch(e){
-      return null;
+        try {
+            const res = await fetch(url);
+            if (res.ok) posts.push(file);
+        } catch (e) { }
     }
-  }
+    return posts;
+}
 
-  // 2) Try GitHub API to list files in the repo (works without directory listing)
-  async function tryGithubApi(){
-    try {
-      const url = `https://api.github.com/repos/${encodeURIComponent(OWNER)}/${encodeURIComponent(REPO)}/contents/${encodeURIComponent(API_PATH)}?ref=${encodeURIComponent(BRANCH)}`;
-      const headers = {};
-      if(GITHUB_TOKEN) headers['Authorization'] = 'token ' + GITHUB_TOKEN;
-      const r = await fetch(url, { headers });
-      if(!r.ok) throw new Error('github api error ' + r.status);
-      const data = await r.json();
-      if(!Array.isArray(data)) throw new Error('unexpected api response');
-      // select files that look like posts
-      const files = data
-        .filter(i => i.type === 'file' && /\.(md|markdown|mdx|html)$/i.test(i.name))
-        .map(i => i.name);
-      return files.length ? files : null;
-    } catch(e){
-      return null;
-    }
-  }
+// ===== STEP 2: Render links =====
+function renderPostList(postFiles) {
+    const listDiv = document.getElementById("blog-list");
 
-  // Render the list of filenames
-  function renderList(files){
-    listEl.innerHTML = '';
-    if(!files || files.length === 0){
-      listEl.innerHTML = '<p>No posts found. <small>(If you keep posts under a different path edit API_PATH; or add Blogs/index.json; or populate FALLBACK_FILES.)</small></p>';
-      return;
-    }
-    const container = document.createElement('div');
-    container.className = 'list';
-    files.sort((a,b)=> a.localeCompare(b, undefined, { numeric: true })).forEach(file=>{
-      const a = document.createElement('a');
-      a.textContent = file.replace(/\.(md|markdown|mdx|html)$/i,'').replace(/[_-]+/g,' ');
-      a.href = 'javascript:void(0)';
-      a.addEventListener('click', ()=> openPost(file));
-      container.appendChild(a);
-    });
-    listEl.appendChild(container);
-  }
-
-  // Open a post: fetch it from the raw GitHub URL (raw content) and render
-  async function openPost(filename){
-    listEl.style.display = 'none';
-    postEl.style.display = '';
-    postEl.innerHTML = '<p>Loading…</p>';
-
-    // If index.json method (served on GH Pages) exists and you're serving site from pages,
-    // prefer the relative path so it works on gh-pages domain. Otherwise use raw.githubusercontent.
-    const relativePath = './Blogs/' + filename;
-    let text = null;
-
-    // Try relative fetch first (this works on GitHub Pages if files are actually published under /Blogs/)
-    try {
-      const r = await fetch(relativePath);
-      if(r.ok) text = await r.text();
-    } catch(e){ /* ignore */ }
-
-    // If relative fetch failed, fetch raw from GitHub
-    if(text === null) {
-      const rawUrl = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/public/Blogs/${filename}`;
-      try {
-        const r2 = await fetch(rawUrl);
-        if(!r2.ok){ postEl.innerHTML = '<p>Failed to load post: ' + r2.status + '</p>'; return; }
-        text = await r2.text();
-      } catch(e){
-        postEl.innerHTML = '<p>Failed to fetch the post.</p>';
+    if (postFiles.length === 0) {
+        listDiv.innerHTML = "<p>No blog posts found.</p>";
         return;
-      }
     }
 
-    // remove YAML front-matter if present
-    const fm = text.match(/^---\s*[\s\S]*?\r?\n---\s*/);
-    const md = fm ? text.slice(fm[0].length) : text;
-
-    // render: markdown -> HTML, html files shown as-is
-    let html;
-    if(/\.html?$/i.test(filename)) html = md;
-    else html = marked.parse(md);
-
-    postEl.innerHTML = `<div class="content">${html}</div><a class="back">← Back</a>`;
-    postEl.querySelector('.back').addEventListener('click', ()=>{
-      postEl.style.display = 'none';
-      listEl.style.display = '';
+    listDiv.innerHTML = "";
+    postFiles.forEach(file => {
+        const a = document.createElement("a");
+        a.href = "#";
+        a.textContent = file.replace(".md", "").replace(/_/g, " ").toUpperCase();
+        a.onclick = () => loadPost(file);
+        listDiv.appendChild(a);
     });
-  }
+}
 
-  // Try fetch strategies
-  let files = await tryIndexJson();
-  if(!files) files = await tryGithubApi();
-  if(!files && Array.isArray(FALLBACK_FILES) && FALLBACK_FILES.length) files = FALLBACK_FILES.slice();
-  renderList(files || []);
+// ===== STEP 3: Load + Render Markdown =====
+async function loadPost(filename) {
+    const contentDiv = document.getElementById("blog-content");
+    contentDiv.innerHTML = "<p>Loading...</p>";
+
+    const url = BLOG_FOLDER + filename;
+
+    try {
+        const res = await fetch(url);
+        const text = await res.text();
+
+        // Convert markdown → HTML
+        const html = marked.parse(text);
+        contentDiv.innerHTML = html;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+        contentDiv.innerHTML = "<p>Failed to load blog.</p>";
+    }
+}
+
+// ===== MAIN STARTUP =====
+(async () => {
+    const posts = await discoverPosts();
+    renderPostList(posts);
 })();
 </script>
+
 </body>
 </html>
