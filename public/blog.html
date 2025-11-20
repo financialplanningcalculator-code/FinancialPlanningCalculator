@@ -1,4 +1,3 @@
-<!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -8,82 +7,129 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FEZEWRW546"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1941542042191977" crossorigin="anonymous"></script>
   <style>
-    body{font-family:system-ui, -apple-system, Roboto, Arial; max-width:800px;margin:24px auto;padding:0 16px}
-    .list div{padding:10px;border-bottom:1px solid #eee;cursor:pointer}
+    body{font-family:system-ui, -apple-system, Roboto, Arial; max-width:900px;margin:24px auto;padding:0 16px}
+    h1{margin-bottom:8px}
+    .list a{display:block;padding:10px;border-bottom:1px solid #eee;color:#0366d6;text-decoration:none}
+    .list a:hover{text-decoration:underline}
     .content{margin-top:18px}
     .back{display:inline-block;margin-top:12px;color:#0366d6;cursor:pointer}
+    .note{color:#666;font-size:14px;margin-bottom:12px}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
   <h1>Blog</h1>
+  <div class="note">If the list says "Unable to load" — see notes below for fixes.</div>
   <div id="list">Loading posts…</div>
   <article id="post" style="display:none"></article>
 
 <script>
 (async function(){
-  const USER = "financialplanningcalculator-code";    // replace
-  const REPO = "FinancialPlanningCalculator";      // replace
-  const BRANCH = "main";
-  const FOLDER = "blogs";
+  const LIST_URL_DIR = './Blog/';          // try directory listing first
+  const LIST_URL_JSON = './Blog/index.json'; // fallback: a JSON index file
+  const FALLBACK_FILES = [ /* e.g. "post1.md", "my-article.html" */ ];
 
   const listEl = document.getElementById('list');
   const postEl = document.getElementById('post');
 
-  async function fetchList(){
-    const url = `https://api.github.com/repos/${encodeURIComponent(USER)}/${encodeURIComponent(REPO)}/contents/${encodeURIComponent(FOLDER)}?ref=${encodeURIComponent(BRANCH)}`;
-    const r = await fetch(url);
-    if(!r.ok){ listEl.innerText = 'Cannot load posts: ' + r.status; return []; }
-    const arr = await r.json();
-    return arr.filter(i => i.type === 'file' && /\.(md|markdown|mdx|html)$/i.test(i.name))
-              .sort((a,b)=> a.name.localeCompare(b.name, undefined, { numeric: true }));
+  // Primary attempt: fetch directory listing HTML and parse links (works only if server auto-indexes)
+  async function tryDirList(){
+    try {
+      const r = await fetch(LIST_URL_DIR, { cache: 'no-store' });
+      if(!r.ok) throw new Error('Dir fetch status ' + r.status);
+      const html = await r.text();
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      // Find hrefs that look like files
+      const hrefs = Array.from(tmp.querySelectorAll('a'))
+                   .map(a => a.getAttribute('href'))
+                   .filter(Boolean)
+                   .map(h => decodeURIComponent(h.split('#')[0].split('?')[0]))
+                   .filter(h => /\.(md|markdown|mdx|html)$/i.test(h))
+                   // Remove possible parent-links or folder paths
+                   .map(h => h.replace(/^\.\//,'').replace(/^\/+/,''))
+                   .filter((v,i,a)=> a.indexOf(v)===i);
+      if(hrefs.length) return hrefs;
+      throw new Error('No posts in dir listing');
+    } catch(e){
+      return null;
+    }
   }
 
-  function renderList(items){
-    if(!items.length){ listEl.innerHTML = '<p>No posts found.</p>'; return; }
+  // Secondary attempt: fetch a JSON index file (recommended approach)
+  async function tryJsonIndex(){
+    try {
+      const r = await fetch(LIST_URL_JSON, { cache: 'no-store' });
+      if(!r.ok) throw new Error('JSON index not found');
+      const arr = await r.json();
+      if(!Array.isArray(arr)) throw new Error('index.json must be an array of filenames');
+      const files = arr.filter(f => /\.(md|markdown|mdx|html)$/i.test(f));
+      if(files.length) return files;
+      throw new Error('No posts in index.json');
+    } catch(e){
+      return null;
+    }
+  }
+
+  function renderList(files){
     listEl.innerHTML = '';
-    items.forEach(item=>{
-      const d = document.createElement('div');
-      d.textContent = item.name.replace(/\.(md|markdown|mdx|html)$/i,'');
-      d.addEventListener('click', ()=> openPost(item));
-      listEl.appendChild(d);
+    if(!files || files.length === 0){
+      listEl.innerHTML = '<p>No posts found. (Try creating Blog/index.json or add filenames to FALLBACK_FILES in the script.)</p>';
+      return;
+    }
+    const container = document.createElement('div');
+    container.className = 'list';
+    files.sort((a,b)=> a.localeCompare(b, undefined, { numeric:true })).forEach(file=>{
+      const a = document.createElement('a');
+      a.textContent = file.replace(/\.(md|markdown|mdx|html)$/i,'');
+      a.href = 'javascript:void(0)';
+      a.addEventListener('click', () => openPost(file));
+      container.appendChild(a);
     });
+    listEl.appendChild(container);
   }
 
-  async function openPost(item){
+  async function openPost(filename){
     listEl.style.display = 'none';
     postEl.style.display = '';
     postEl.innerHTML = '<p>Loading…</p>';
 
-    const rawUrl = item.download_url || `https://raw.githubusercontent.com/${USER}/${REPO}/${BRANCH}/${item.path}`;
-    const r = await fetch(rawUrl);
-    if(!r.ok){ postEl.innerHTML = '<p>Failed to load post.</p>'; return; }
-    const text = await r.text();
+    // try relative path under Blog/
+    const path = './Blog/' + filename;
+    try {
+      const r = await fetch(path);
+      if(!r.ok){ postEl.innerHTML = '<p>Failed to load post: ' + r.status + '</p>'; return; }
+      const text = await r.text();
 
-    // remove YAML front-matter if present
-    const fm = text.match(/^---\s*[\s\S]*?\r?\n---\s*/);
-    const md = fm ? text.slice(fm[0].length) : text;
+      // remove YAML front-matter if present
+      const fm = text.match(/^---\s*[\s\S]*?\r?\n---\s*/);
+      const md = fm ? text.slice(fm[0].length) : text;
 
-    // convert markdown to html, or show html file as-is
-    let html;
-    if(/\.html?$/i.test(item.name)) html = md;
-    else html = marked.parse(md);
+      let html;
+      if(/\.html?$/i.test(filename)) html = md;
+      else html = marked.parse(md);
 
-    // IMPORTANT: show only content — no title, no tags
-    postEl.innerHTML = `<div class="content">${html}</div><a class="back">← Back</a>`;
-    postEl.querySelector('.back').addEventListener('click', ()=>{
-      postEl.style.display = 'none';
-      listEl.style.display = '';
-    });
+      postEl.innerHTML = `<div class="content">${html}</div><a class="back">← Back</a>`;
+      postEl.querySelector('.back').addEventListener('click', ()=>{
+        postEl.style.display = 'none';
+        listEl.style.display = '';
+      });
+    } catch(err){
+      postEl.innerHTML = '<p>Failed to fetch the post.</p>';
+    }
   }
 
-  const items = await fetchList();
-  renderList(items);
+  // Try strategies in order:
+  let files = await tryDirList();
+  if(!files) files = await tryJsonIndex();
+  if(!files && FALLBACK_FILES && FALLBACK_FILES.length) files = FALLBACK_FILES.slice();
+  if(!files){
+    listEl.innerHTML = '<p>Unable to load blog list. Recommended fixes are shown below.</p><ul><li>Create a file <code>Blog/index.json</code> containing a JSON array of filenames (e.g. <code>["post1.md","article2.html"]</code>).</li><li>Host on a server that allows directory listings, or provide a manifest.</li><li>Use the FALLBACK_FILES array in this script as a last resort.</li></ul>';
+    return;
+  }
+  renderList(files);
 })();
 </script>
+
 </body>
 </html>
-
-
-
-
