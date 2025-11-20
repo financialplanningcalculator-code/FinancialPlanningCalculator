@@ -1,4 +1,4 @@
-# DUPLICATE How High-Interest Savings Accounts Accelerate Your Goals
+# Conscious Spending: A Smarter Way to Manage Money
 
 Financial planning is most effective when approached with clarity,
 consistency, and long-term thinking. This article explores a key concept
