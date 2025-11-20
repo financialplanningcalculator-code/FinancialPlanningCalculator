@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Blog</title>
 
-<!-- Markdown library -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <style>
@@ -16,27 +15,23 @@ body {
     flex-direction: column;
     min-height: 100vh;
 }
-
 header, footer {
     background-color: #003366;
     color: white;
     padding: 15px 20px;
     text-align: center;
 }
-
 .container {
     display: flex;
     flex: 1;
     flex-direction: row;
 }
-
 nav {
     width: 220px;
     background-color: #f0f0f0;
     padding: 20px;
     box-sizing: border-box;
 }
-
 nav a {
     display: block;
     margin: 10px 0;
@@ -44,43 +39,38 @@ nav a {
     color: #003366;
     font-weight: bold;
 }
-
-nav a:hover {
-    color: #0066cc;
-}
-
+nav a:hover { color: #0066cc; }
 main {
     flex: 1;
     padding: 20px;
     box-sizing: border-box;
 }
-
 #blog-list a {
     display: block;
     padding: 8px 0;
     text-decoration: none;
     color: #003366;
 }
-
-#blog-list a:hover {
-    color: #0066cc;
-}
-
+#blog-list a:hover { color: #0066cc; }
 #blog-content {
-    margin-top: 30px;
+    margin-top: 20px;
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 10px;
 }
-
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 5px 12px;
+    background-color: #003366;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+.back-button:hover { background-color: #0066cc; }
 @media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
-    nav {
-        width: 100%;
-        margin-bottom: 20px;
-    }
+    .container { flex-direction: column; }
+    nav { width: 100%; margin-bottom: 20px; }
 }
 </style>
 </head>
@@ -91,18 +81,18 @@ main {
 </header>
 
 <div class="container">
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="blog.html">Blog</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-    </nav>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="blog.html">Blog</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+</nav>
 
-    <main>
-        <h2>Blog Posts</h2>
-        <div id="blog-list">Loading posts...</div>
-        <div id="blog-content"></div>
-    </main>
+<main>
+    <h2>Blog Posts</h2>
+    <div id="blog-list">Loading posts...</div>
+    <div id="blog-content"></div>
+</main>
 </div>
 
 <footer>
@@ -111,66 +101,86 @@ main {
 
 <script>
 const BLOG_FOLDER = "/blogs/";
+const MAX_POSTS = 99; // adjust as needed
 
-// Load JSON index of blog posts
-async function getPosts() {
-    try {
-        const res = await fetch(BLOG_FOLDER + "index.json");
-        const posts = await res.json();
-
-        // For each post, fetch first heading from markdown for title
-        for (const post of posts) {
-            try {
-                const mdRes = await fetch(BLOG_FOLDER + post.file);
-                const mdText = await mdRes.text();
-                const match = mdText.match(/^# (.+)$/m);
-                post.title = match ? match[1] : post.file.replace(".md", "");
-            } catch(e){
-                post.title = post.file.replace(".md", "");
-            }
-        }
-        return posts;
-    } catch (e) {
-        console.error("Failed to load blog index:", e);
-        return [];
-    }
+// Helper: get URL query parameter
+function getQueryParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
 }
 
-// Render blog list
+// Try to fetch a file to see if it exists
+async function fileExists(url) {
+    try {
+        const res = await fetch(url, { method: 'HEAD' });
+        return res.ok;
+    } catch(e) { return false; }
+}
+
+// Load list of posts dynamically
+async function discoverPosts() {
+    const posts = [];
+    for (let i=1; i<=MAX_POSTS; i++) {
+        const filename = `blog_${String(i).padStart(2,'0')}.md`;
+        const url = BLOG_FOLDER + filename;
+        if(await fileExists(url)) {
+            // Fetch first line for title
+            let title = filename.replace(".md", "");
+            try {
+                const res = await fetch(url);
+                const text = await res.text();
+                const match = text.match(/^# (.+)$/m);
+                if(match) title = match[1];
+            } catch(e) {}
+            posts.push({ file: filename, title });
+        }
+    }
+    return posts;
+}
+
+// Render post list
 function renderPostList(posts) {
     const listDiv = document.getElementById("blog-list");
-    if (!posts || posts.length === 0) {
+    if(posts.length === 0) {
         listDiv.innerHTML = "<p>No blog posts found.</p>";
         return;
     }
     listDiv.innerHTML = "";
     posts.forEach(post => {
         const a = document.createElement("a");
-        a.href = "#";
+        a.href = "blog.html?post=" + encodeURIComponent(post.file);
         a.textContent = post.title;
-        a.onclick = () => loadPost(post.file);
         listDiv.appendChild(a);
     });
 }
 
-// Load and render blog
+// Load blog content
 async function loadPost(filename) {
+    const listDiv = document.getElementById("blog-list");
+    listDiv.style.display = "none";
+
     const contentDiv = document.getElementById("blog-content");
-    contentDiv.innerHTML = "<p>Loading...</p>";
+    contentDiv.innerHTML = '<a class="back-button" href="blog.html">&larr; Back to Blog List</a><p>Loading...</p>';
+
     try {
         const res = await fetch(BLOG_FOLDER + filename);
         const text = await res.text();
-        contentDiv.innerHTML = marked.parse(text);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err) {
-        contentDiv.innerHTML = "<p>Failed to load blog.</p>";
+        contentDiv.innerHTML = '<a class="back-button" href="blog.html">&larr; Back to Blog List</a>' + marked.parse(text);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch(e) {
+        contentDiv.innerHTML = '<a class="back-button" href="blog.html">&larr; Back to Blog List</a><p>Failed to load blog.</p>';
     }
 }
 
 // Initialize
 (async () => {
-    const posts = await getPosts();
+    const posts = await discoverPosts();
     renderPostList(posts);
+
+    const postQuery = getQueryParam("post");
+    if(postQuery) {
+        loadPost(postQuery);
+    }
 })();
 </script>
 
