@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Blog</title>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FEZEWRW546"></script>
+
+  <style>
+    body{font-family:system-ui, -apple-system, Roboto, Arial; max-width:800px;margin:24px auto;padding:0 16px}
+    .list div{padding:10px;border-bottom:1px solid #eee;cursor:pointer}
+    .content{margin-top:18px}
+    .back{display:inline-block;margin-top:12px;color:#0366d6;cursor:pointer}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <h1>Blog</h1>
+  <div id="list">Loading posts…</div>
+  <article id="post" style="display:none"></article>
+
+<script>
+(async function(){
+  const USER = "financialplanningcalculator-code";    // replace
+  const REPO = "FinancialPlanningCalculator";      // replace
+  const BRANCH = "main";
+  const FOLDER = "blogs";
+
+  const listEl = document.getElementById('list');
+  const postEl = document.getElementById('post');
+
+  async function fetchList(){
+    const url = `https://api.github.com/repos/${encodeURIComponent(USER)}/${encodeURIComponent(REPO)}/contents/${encodeURIComponent(FOLDER)}?ref=${encodeURIComponent(BRANCH)}`;
+    const r = await fetch(url);
+    if(!r.ok){ listEl.innerText = 'Cannot load posts: ' + r.status; return []; }
+    const arr = await r.json();
+    return arr.filter(i => i.type === 'file' && /\.(md|markdown|mdx|html)$/i.test(i.name))
+              .sort((a,b)=> a.name.localeCompare(b.name, undefined, { numeric: true }));
+  }
+
+  function renderList(items){
+    if(!items.length){ listEl.innerHTML = '<p>No posts found.</p>'; return; }
+    listEl.innerHTML = '';
+    items.forEach(item=>{
+      const d = document.createElement('div');
+      d.textContent = item.name.replace(/\.(md|markdown|mdx|html)$/i,'');
+      d.addEventListener('click', ()=> openPost(item));
+      listEl.appendChild(d);
+    });
+  }
+
+  async function openPost(item){
+    listEl.style.display = 'none';
+    postEl.style.display = '';
+    postEl.innerHTML = '<p>Loading…</p>';
+
+    const rawUrl = item.download_url || `https://raw.githubusercontent.com/${USER}/${REPO}/${BRANCH}/${item.path}`;
+    const r = await fetch(rawUrl);
+    if(!r.ok){ postEl.innerHTML = '<p>Failed to load post.</p>'; return; }
+    const text = await r.text();
+
+    // remove YAML front-matter if present
+    const fm = text.match(/^---\s*[\s\S]*?\r?\n---\s*/);
+    const md = fm ? text.slice(fm[0].length) : text;
+
+    // convert markdown to html, or show html file as-is
+    let html;
+    if(/\.html?$/i.test(item.name)) html = md;
+    else html = marked.parse(md);
+
+    // IMPORTANT: show only content — no title, no tags
+    postEl.innerHTML = `<div class="content">${html}</div><a class="back">← Back</a>`;
+    postEl.querySelector('.back').addEventListener('click', ()=>{
+      postEl.style.display = 'none';
+      listEl.style.display = '';
+    });
+  }
+
+  const items = await fetchList();
+  renderList(items);
+})();
+</script>
+</body>
+</html>
+
+
+
+
