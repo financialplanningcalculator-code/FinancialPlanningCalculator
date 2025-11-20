@@ -1,134 +1,83 @@
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Blog</title>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FEZEWRW546"></script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1941542042191977" crossorigin="anonymous"></script>
-  <style>
-    body{font-family:system-ui, -apple-system, Roboto, Arial; max-width:900px;margin:24px auto;padding:0 16px}
-    h1{margin-bottom:8px}
-    .list a{display:block;padding:10px;border-bottom:1px solid #eee;color:#0366d6;text-decoration:none}
-    .list a:hover{text-decoration:underline}
-    .content{margin-top:18px}
-    .back{display:inline-block;margin-top:12px;color:#0366d6;cursor:pointer}
-    .note{color:#666;font-size:14px;margin-bottom:12px}
-  </style>
+  <meta charset="UTF-8">
+  <title>Blogs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 0 20px; }
+    h1 { margin-bottom: 20px; }
+    a.post-link {
+      display: block;
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+      color: #0366d6;
+      text-decoration: none;
+      font-size: 18px;
+    }
+    a.post-link:hover { text-decoration: underline; }
+    #post { margin-top: 20px; display: none; }
+    #backBtn { display: none; cursor: pointer; color: #0366d6; margin-top: 15px; }
+  </style>
 </head>
 <body>
-  <h1>Blog</h1>
-  <div class="note">If the list says "Unable to load" — see notes below for fixes.</div>
-  <div id="list">Loading posts…</div>
-  <article id="post" style="display:none"></article>
+
+<h1>Blog Articles</h1>
+
+<!-- LIST OF BLOG LINKS -->
+<div id="blogList"></div>
+
+<!-- BLOG CONTENT VIEW -->
+<div id="post"></div>
+<div id="backBtn">← Back to Blogs</div>
 
 <script>
-(async function(){
-  const LIST_URL_DIR = './blogs/';          // try directory listing first
-  const LIST_URL_JSON = './Blogs/index.json'; // fallback: a JSON index file
-  const FALLBACK_FILES = [ /* e.g. "post1.md", "my-article.html" */ ];
+// ⭐ LIST YOUR BLOG FILES HERE ⭐
+// These files must be inside: /public/Blogs/
+const BLOG_FILES = [
+  "blog_01.md",
+  "blog_02.md",
+  "blog_03.md",
+  // add more here...
+];
 
-  const listEl = document.getElementById('list');
-  const postEl = document.getElementById('post');
+function renderBlogList() {
+  const list = document.getElementById("blogList");
+  list.innerHTML = "";
 
-  // Primary attempt: fetch directory listing HTML and parse links (works only if server auto-indexes)
-  async function tryDirList(){
-    try {
-      const r = await fetch(LIST_URL_DIR, { cache: 'no-store' });
-      if(!r.ok) throw new Error('Dir fetch status ' + r.status);
-      const html = await r.text();
-      const tmp = document.createElement('div');
-      tmp.innerHTML = html;
-      // Find hrefs that look like files
-      const hrefs = Array.from(tmp.querySelectorAll('a'))
-                   .map(a => a.getAttribute('href'))
-                   .filter(Boolean)
-                   .map(h => decodeURIComponent(h.split('#')[0].split('?')[0]))
-                   .filter(h => /\.(md|markdown|mdx|html)$/i.test(h))
-                   // Remove possible parent-links or folder paths
-                   .map(h => h.replace(/^\.\//,'').replace(/^\/+/,''))
-                   .filter((v,i,a)=> a.indexOf(v)===i);
-      if(hrefs.length) return hrefs;
-      throw new Error('No posts in dir listing');
-    } catch(e){
-      return null;
-    }
-  }
+  BLOG_FILES.forEach(filename => {
+    const link = document.createElement("a");
+    link.className = "post-link";
+    link.textContent = filename.replace(".md", "").replace(/_/g, " ");
+    link.href = "javascript:void(0)";
+    link.onclick = () => openBlog(filename);
+    list.appendChild(link);
+  });
+}
 
-  // Secondary attempt: fetch a JSON index file (recommended approach)
-  async function tryJsonIndex(){
-    try {
-      const r = await fetch(LIST_URL_JSON, { cache: 'no-store' });
-      if(!r.ok) throw new Error('JSON index not found');
-      const arr = await r.json();
-      if(!Array.isArray(arr)) throw new Error('index.json must be an array of filenames');
-      const files = arr.filter(f => /\.(md|markdown|mdx|html)$/i.test(f));
-      if(files.length) return files;
-      throw new Error('No posts in index.json');
-    } catch(e){
-      return null;
-    }
-  }
+async function openBlog(filename) {
+  document.getElementById("blogList").style.display = "none";
+  const post = document.getElementById("post");
+  const backBtn = document.getElementById("backBtn");
 
-  function renderList(files){
-    listEl.innerHTML = '';
-    if(!files || files.length === 0){
-      listEl.innerHTML = '<p>No posts found. (Try creating Blog/index.json or add filenames to FALLBACK_FILES in the script.)</p>';
-      return;
-    }
-    const container = document.createElement('div');
-    container.className = 'list';
-    files.sort((a,b)=> a.localeCompare(b, undefined, { numeric:true })).forEach(file=>{
-      const a = document.createElement('a');
-      a.textContent = file.replace(/\.(md|markdown|mdx|html)$/i,'');
-      a.href = 'javascript:void(0)';
-      a.addEventListener('click', () => openPost(file));
-      container.appendChild(a);
-    });
-    listEl.appendChild(container);
-  }
+  post.style.display = "block";
+  backBtn.style.display = "block";
+  post.innerHTML = "<p>Loading...</p>";
 
-  async function openPost(filename){
-    listEl.style.display = 'none';
-    postEl.style.display = '';
-    postEl.innerHTML = '<p>Loading…</p>';
+  const response = await fetch("./Blogs/" + filename);
+  const md = await response.text();
+  post.innerHTML = marked.parse(md);
 
-    // try relative path under Blog/
-    const path = './Blog/' + filename;
-    try {
-      const r = await fetch(path);
-      if(!r.ok){ postEl.innerHTML = '<p>Failed to load post: ' + r.status + '</p>'; return; }
-      const text = await r.text();
+  backBtn.onclick = () => {
+    post.style.display = "none";
+    backBtn.style.display = "none";
+    document.getElementById("blogList").style.display = "block";
+  };
+}
 
-      // remove YAML front-matter if present
-      const fm = text.match(/^---\s*[\s\S]*?\r?\n---\s*/);
-      const md = fm ? text.slice(fm[0].length) : text;
-
-      let html;
-      if(/\.html?$/i.test(filename)) html = md;
-      else html = marked.parse(md);
-
-      postEl.innerHTML = `<div class="content">${html}</div><a class="back">← Back</a>`;
-      postEl.querySelector('.back').addEventListener('click', ()=>{
-        postEl.style.display = 'none';
-        listEl.style.display = '';
-      });
-    } catch(err){
-      postEl.innerHTML = '<p>Failed to fetch the post.</p>';
-    }
-  }
-
-  // Try strategies in order:
-  let files = await tryDirList();
-  if(!files) files = await tryJsonIndex();
-  if(!files && FALLBACK_FILES && FALLBACK_FILES.length) files = FALLBACK_FILES.slice();
-  if(!files){
-    listEl.innerHTML = '<p>Unable to load blog list. Recommended fixes are shown below.</p><ul><li>Create a file <code>Blog/index.json</code> containing a JSON array of filenames (e.g. <code>["post1.md","article2.html"]</code>).</li><li>Host on a server that allows directory listings, or provide a manifest.</li><li>Use the FALLBACK_FILES array in this script as a last resort.</li></ul>';
-    return;
-  }
-  renderList(files);
-})();
+renderBlogList();
 </script>
 
 </body>
