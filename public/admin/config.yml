@@ -1,0 +1,20 @@
+backend:
+  name: github
+  repo: "financialplanningcalculator-code/FinancialPlanningCalculator"
+  branch: "main"
+  client_id: "Ov23linOw4kRStnZ6yFN"
+
+media_folder: "static/uploads"
+public_folder: "/uploads"
+
+publish_mode: simple
+
+collections:
+  - name: "posts"
+    label: "Posts"
+    folder: "blogs"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Body", name: "body", widget: "markdown" }
