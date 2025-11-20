@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog Details</title>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; }
+header, footer { background:#003366; color:white; padding:15px; text-align:center; }
+.container { max-width:900px; margin:20px auto; padding:0 15px; }
+h1 { margin-bottom:20px; }
+#blog-content { padding:20px; border:1px solid #ddd; border-radius:10px; margin-top:15px; }
+a.back-btn {
+    display:inline-block;
+    margin-bottom:15px;
+    padding:5px 12px;
+    background:#003366;
+    color:white;
+    text-decoration:none;
+    border-radius:5px;
+}
+a.back-btn:hover { background:#0066cc; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Blog Details</h1>
+</header>
+
+<div class="container">
+    <a href="blog.html" class="back-btn">&larr; Back to Blog List</a>
+    <div id="blog-content">Loading blog...</div>
+</div>
+
+<footer>
+    &copy; 2025 Your Website
+</footer>
+
+<script>
+// Helper to get query parameter
+function getQueryParam(name){
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+}
+
+async function loadBlog(){
+    const filename = getQueryParam("post");
+    const contentDiv = document.getElementById("blog-content");
+    if(!filename){
+        contentDiv.innerHTML = "<p>No blog selected.</p>";
+        return;
+    }
+    try{
+        const res = await fetch("/blogs/" + filename);
+        if(!res.ok) throw new Error("Blog not found");
+        const text = await res.text();
+        contentDiv.innerHTML = marked.parse(text);
+        window.scrollTo({top:0, behavior:'smooth'});
+    }catch(e){
+        contentDiv.innerHTML = "<p>Failed to load blog.</p>";
+    }
+}
+
+loadBlog();
+</script>
+
+</body>
+</html>
