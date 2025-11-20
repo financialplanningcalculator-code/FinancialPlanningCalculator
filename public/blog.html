@@ -1,71 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Blog List</title>
+
 <style>
-body { font-family: Arial, sans-serif; margin:0; padding:0; }
-header, footer { background:#003366; color:white; padding:15px; text-align:center; }
-.container { max-width:900px; margin:20px auto; padding:0 15px; }
-h1 { margin-bottom:20px; }
-a.blog-link { display:block; margin:8px 0; color:#003366; font-weight:bold; text-decoration:none; }
-a.blog-link:hover { color:#0066cc; }
+    /* ===== Global Styles (from index.html) ===== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        padding-bottom: 30px;
+    }
+
+    /* Header */
+    .header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+    .header h1 {
+        font-size: 2.2em;
+        margin-bottom: 10px;
+    }
+    .header p {
+        opacity: 0.9;
+        font-size: 1.1em;
+    }
+
+    /* ===== Blog List ===== */
+    .content-wrapper {
+        padding: 30px;
+    }
+
+    #blog-list {
+        margin-top: 20px;
+    }
+
+    .blog-item {
+        background: #f8f9fa;
+        padding: 18px 20px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        border-left: 4px solid #667eea;
+        transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    .blog-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .blog-link {
+        text-decoration: none;
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #2c3e50;
+        display: block;
+    }
+    .blog-link:hover {
+        color: #667eea;
+    }
+
+    /* Footer */
+    footer {
+        font-size: 0.85em;
+        color: #555;
+        padding: 20px;
+        border-top: 1px solid #eee;
+        text-align: center;
+        line-height: 1.5;
+        margin-top: 20px;
+    }
 </style>
 </head>
+
 <body>
 
-<header>
-    <h1>Blog Posts</h1>
-</header>
-
 <div class="container">
-    <h2>All Blog Posts</h2>
-    <div id="blog-list">Loading blogs...</div>
-</div>
 
-<footer>
-These calculations are based on standard formulas and may not reflect actual outcomes in real-life scenarios. They are provided for reference purposes only and should not be construed as professional advice. Users are encouraged to consult a qualified professional for guidance specific to their individual circumstances.
-</footer>
+    <div class="header">
+        <h1>Our Blog</h1>
+        <p>Financial insights, investment strategies & money management tips</p>
+    </div>
+
+    <div class="content-wrapper">
+        <h2 style="color:#2c3e50; margin-bottom:15px;">All Blog Posts</h2>
+        <div id="blog-list">Loading blogs…</div>
+    </div>
+
+    <footer>
+        These calculations are based on standard formulas and may not reflect actual outcomes in real-life scenarios. They are provided for reference purposes only and should not be construed as professional advice. Users are encouraged to consult a qualified professional for guidance specific to their individual circumstances.
+    </footer>
+
+</div>
 
 <script>
 const BLOG_FOLDER = "/blogs/";
-const MAX_BLOGS = 99; // adjust if needed
+const MAX_BLOGS = 99;
 
-// Fetch first line (# Title) from Markdown file
-async function getTitle(filename){
+// Fetch blog title from first Markdown header
+async function getTitle(filename) {
     try {
         const res = await fetch(BLOG_FOLDER + filename);
-        if(!res.ok) return filename.replace(".md","");
+        if (!res.ok) return filename.replace(".md", "");
         const text = await res.text();
         const match = text.match(/^# (.+)$/m);
-        return match ? match[1] : filename.replace(".md","");
-    } catch(e) {
-        return filename.replace(".md","");
+        return match ? match[1] : filename.replace(".md", "");
+    } catch (e) {
+        return filename.replace(".md", "");
     }
 }
 
-async function loadBlogList(){
+async function loadBlogList() {
     const listDiv = document.getElementById("blog-list");
     listDiv.innerHTML = "";
 
-    for(let i=1; i<=MAX_BLOGS; i++){
-        const filename = `blog_${String(i).padStart(2,'0')}.md`;
+    for (let i = 1; i <= MAX_BLOGS; i++) {
+        const filename = `blog_${String(i).padStart(2, "0")}.md`;
         const url = BLOG_FOLDER + filename;
-        try{
-            const res = await fetch(url,{ method:'HEAD' });
-            if(res.ok){
+
+        try {
+            const res = await fetch(url, { method: "HEAD" });
+
+            if (res.ok) {
                 const title = await getTitle(filename);
+
+                const wrapper = document.createElement("div");
+                wrapper.className = "blog-item";
+
                 const a = document.createElement("a");
                 a.href = "blogdetails.html?post=" + encodeURIComponent(filename);
                 a.textContent = title;
                 a.className = "blog-link";
-                listDiv.appendChild(a);
+
+                wrapper.appendChild(a);
+                listDiv.appendChild(wrapper);
             }
-        }catch(e){}
+        } catch (e) {}
     }
 
-    if(listDiv.children.length === 0){
+    if (listDiv.children.length === 0) {
         listDiv.innerHTML = "<p>No blogs found.</p>";
     }
 }
