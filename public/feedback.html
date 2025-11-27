@@ -1,317 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEZEWRW546"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1941542042191977" crossorigin="anonymous"></script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6T055ZVFET"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-6T055ZVFET');
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feedback Form</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            width: 100%; /* Ensure container takes full width on small screens */
-        }
-
-        .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
-        
-        /* Feedback form styles to match the calculator's input sections */
-        .feedback-body {
-            padding: 40px;
-            flex-grow: 1;
-        }
-
-        .input-group {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-            margin-bottom: 25px;
-        }
-
-        .input-group label {
-            display: block;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-
-        .input-group input, .input-group select, .input-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s ease;
-        }
-
-        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        /* Group for side-by-side buttons */
-        .button-group {
-            display: flex;
-            gap: 15px;
-        }
-
-        .calculate-btn, .back-btn {
-            width: 50%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.3em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .calculate-btn:hover, .back-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .star-rating {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-            margin-top: 10px;
-            direction: rtl;
-        }
-
-        .star-rating > input {
-            display: none;
-        }
-
-        .star-rating > label {
-            font-size: 2em;
-            color: #e9ecef;
-            cursor: pointer;
-            transition: color 0.2s ease-in-out;
-            direction: ltr;
-        }
-
-        .star-rating > input:checked ~ label,
-        .star-rating > input:checked + label,
-        .star-rating > label:hover,
-        .star-rating > label:hover ~ label {
-            color: #ffd700;
-        }
-        
-        /* Custom Message Box Styles */
-        #messageBoxBackground {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        
-        #messageBoxBackground.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        #messageBoxContent {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            .feedback-body {
-                padding: 20px;
-            }
-            .header h1 {
-                font-size: 1.8em;
-            }
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Feedback Form</title>
+<style>
+* { margin:0; padding:0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.header {
+    background: linear-gradient(135deg,#2c3e50 0%,#34495e 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+.header h1 { font-size: 2.2rem; margin-bottom: 8px; }
+.header p  { opacity: 0.9; font-size: 1.05rem; }
+.content-wrapper {
+    padding: 30px;
+    width: 100%;
+}
+.back-btn,
+.form-btn {
+    display:inline-block;
+    padding:10px 25px;
+    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    color:#fff;
+    text-decoration:none;
+    border-radius:8px;
+    font-weight:600;
+    cursor:pointer;
+    border:none;
+    font-size:1rem;
+    transition: transform 0.2s ease;
+}
+.back-btn:hover,
+.form-btn:hover { transform: scale(1.05); }
+.back-btn { 
+    margin-bottom: 25px; 
+}
+.form-row {
+    display:flex;
+    flex-direction: column;
+    gap:6px;
+    margin-bottom:18px;
+    background:#f8f9fa;
+    padding:18px 20px;
+    border-left:4px solid #667eea;
+    border-radius:10px;
+    width:100%;
+}
+.form-label {
+    font-weight:700;
+    color:#1f2937;
+    font-size:1.02rem;
+}
+.form-field { width:100%; display:flex; align-items:center; }
+input[type="text"],
+input[type="email"],
+select,
+textarea {
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:2px solid #e9ecef;
+    font-size:1rem;
+    font-family:inherit;
+    color:#111827;
+    line-height:1.4;
+    background:#fff;
+}
+select option[disabled] {
+    color: #999; 
+}
+.field-error {
+    color:#b91c1c;
+    font-size:.95rem;
+    display:none;
+}
+.button-row {
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    margin-top:20px;
+}
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    font-size: 1.8rem;
+    justify-content: flex-start;
+    cursor: pointer;
+    align-items: center;
+    height: 100%;
+}
+.star-rating span {
+    color: #ccc;
+    margin-right: 5px;
+    transition: color 0.2s;
+    line-height: 1;
+}
+.star-rating span.selected,
+.star-rating span:hover,
+.star-rating span:hover ~ span {
+    color: #facc15;
+}
+footer {
+    padding:20px;
+    font-size:.88rem;
+    color:#555;
+    border-top:1px solid #eee;
+    background:#fff;
+    text-align: justify;
+    text-justify: inter-word;
+}
+@media (max-width:880px){
+    .form-row { flex-direction:column; }
+    .button-row { flex-direction:column; align-items:center; gap:10px; }
+}
+#formMessage {
+    display:none;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:8px;
+    font-weight:600;
+}
+#formMessage.success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 2px solid #10b981;
+}
+#formMessage.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 2px solid #ef4444;
+}
+</style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Feedback Form</h1>
-            <p>We'd love to hear your thoughts, suggestions, or bug reports.</p>
-        </div>
-        
-        <div class="feedback-body">
-            <form id="feedbackForm" action="https://formspree.io/f/xgvlzadj" method="POST">
-                <input type="hidden" name="_subject" value="Financial Planning Calculator Feedback Submission!">
-                
-                <div class="input-group">
-                    <label for="name">Your Name (Optional)</label>
-                    <input type="text" id="name" name="name" placeholder="John Doe">
-                </div>
 
-                <div class="input-group">
-                    <label for="email">Email Address (Optional, for follow-up)</label>
-                    <input type="email" id="email" name="email" placeholder="you@example.com">
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>Feedback Form</h1>
+        <p>We'd love to hear your thoughts, suggestions, or bug reports.</p>
+    </div>
+
+    <div class="content-wrapper">
+        <a href="index.html" class="back-btn">← Back to Calculators</a>
+
+        <form id="feedbackForm" action="https://formspree.io/f/xgvlzadj" method="POST" novalidate>
+
+            <div id="formMessage"></div>
+
+            <input type="hidden" name="_subject" value="Financial Planning Calculator Feedback Submission!">
+
+            <div class="form-row">
+                <div class="form-label"><label for="name">Your Name (Optional)</label></div>
+                <div class="field-error" id="nameError"></div>
+                <div class="form-field">
+                    <input id="name" name="name" type="text" placeholder="Enter your name">
                 </div>
-                
-                <div class="input-group">
-                    <label for="feedbackType">Feedback Type</label>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label"><label for="email">Email Address (Optional)</label></div>
+                <div class="field-error" id="emailError"></div>
+                <div class="form-field"><input id="email" name="email" type="email" placeholder="Enter your email"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label"><label for="feedbackType">Feedback Type *</label></div>
+                <div class="field-error" id="typeError"></div>
+                <div class="form-field">
                     <select id="feedbackType" name="feedbackType" required>
+                        <option value="" disabled selected hidden>Select feedback type</option>
                         <option value="suggestion">Suggestion</option>
                         <option value="bug_report">Bug Report</option>
                         <option value="general">General Feedback</option>
                         <option value="compliment">Compliment</option>
                     </select>
                 </div>
+            </div>
 
-                <div class="input-group">
-                    <label for="message">Your Message</label>
-                    <textarea id="message" name="message" rows="5" required
-                              placeholder="Tell us what you think or what issues you encountered..."></textarea>
-                </div>
-                
-                <div class="input-group">
-                    <label>How would you rate your experience? (Optional)</label>
+            <div class="form-row" id="ratingRow" style="display:none;">
+                <div class="form-label"><label for="rating">Rating (Optional)</label></div>
+                <div class="field-error" id="ratingError"></div>
+                <div class="form-field">
                     <div class="star-rating">
-                        <input type="radio" id="rating5" name="rating" value="5" hidden />
-                        <label for="rating5">★</label>
-                        <input type="radio" id="rating4" name="rating" value="4" hidden />
-                        <label for="rating4">★</label>
-                        <input type="radio" id="rating3" name="rating" value="3" hidden />
-                        <label for="rating3">★</label>
-                        <input type="radio" id="rating2" name="rating" value="2" hidden />
-                        <label for="rating2">★</label>
-                        <input type="radio" id="rating1" name="rating" value="1" hidden />
-                        <label for="rating1">★</label>
+                        <span data-value="5">&#9733;</span>
+                        <span data-value="4">&#9733;</span>
+                        <span data-value="3">&#9733;</span>
+                        <span data-value="2">&#9733;</span>
+                        <span data-value="1">&#9733;</span>
                     </div>
+                    <input type="hidden" id="rating" name="rating">
                 </div>
+            </div>
 
-                <div class="button-group">
-                    <button type="submit" class="calculate-btn">Submit Feedback</button>
-                    <button type="button" class="back-btn" onclick="window.location.href='index.html'">Go Back</button>
+            <div class="form-row">
+                <div class="form-label"><label for="message">Your Message *</label></div>
+                <div class="field-error" id="messageError"></div>
+                <div class="form-field">
+                    <textarea id="message" name="message" rows="6" required placeholder="Write your message here..."></textarea>
                 </div>
-            </form>
-        </div>
+            </div>
+
+            <div class="button-row">
+                <button type="submit" class="form-btn">Submit Feedback</button>
+                <button type="button" class="form-btn" id="clearBtn">Clear Fields</button>
+            </div>
+
+        </form>
     </div>
-    <div id="messageBoxBackground">
-        <div id="messageBoxContent">
-            <h3 id="messageBoxTitle" style="font-size: 1.5em; font-weight: bold; margin-bottom: 10px;"></h3>
-            <p id="messageBoxText"></p>
-            <button onclick="window.location.href = 'index.html'" style="margin-top: 20px; padding: 10px 20px; background-color: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">OK</button>
-        </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const feedbackForm = document.getElementById('feedbackForm');
-            const messageBoxBackground = document.getElementById('messageBoxBackground');
-            const messageBoxTitle = document.getElementById('messageBoxTitle');
-            const messageBoxText = document.getElementById('messageBoxText');
-            const ratingLabels = document.querySelectorAll('.star-rating label');
 
-            function showMessageBox(title, message) {
-                messageBoxTitle.textContent = title;
-                messageBoxText.textContent = message;
-                messageBoxBackground.classList.add('show');
-            }
+    <footer>
+        These calculations are based on standard formulas and may not reflect actual outcomes in real-life scenarios.
+        They are provided for reference purposes only and should not be construed as professional advice.
+        Users are encouraged to consult a qualified professional for guidance specific to their individual circumstances.
+    </footer>
 
-            // The hideMessageBox function is no longer needed since the 'OK' button will now directly handle the redirection.
+</div>
 
-            feedbackForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const form = e.target;
-                const data = new FormData(form);
-                
-                try {
-                    const response = await fetch(form.action, {
-                        method: form.method,
-                        body: data,
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('feedbackForm');
+    const nameField = document.getElementById('name');
+    const email = document.getElementById('email');
+    const type = document.getElementById('feedbackType');
+    const msg = document.getElementById('message');
+    const clearBtn = document.getElementById('clearBtn');
+    const formMessage = document.getElementById('formMessage');
+    const ratingRow = document.getElementById('ratingRow');
+    const rating = document.getElementById('rating');
+    const stars = document.querySelectorAll('.star-rating span');
 
-                    if (response.ok) {
-                        showMessageBox('Success!', 'Thank you for your feedback! We appreciate it.');
-                        feedbackForm.reset();
-                        // Reset star ratings visual
-                        ratingLabels.forEach(label => label.style.color = '#e9ecef');
-                    } else {
-                        const errorData = await response.json();
-                        showMessageBox('Error', errorData.errors ? errorData.errors.map(e => e.message).join(', ') : 'There was an issue submitting your feedback. Please try again later.');
-                    }
-                } catch (error) {
-                    console.error('Error submitting feedback:', error);
-                    showMessageBox('Error', 'There was an issue submitting your feedback. Please check your internet connection or ensure the Formspree setup is correct (e.g., correct ID, email confirmed).');
-                }
-            });
+    const nameError = document.getElementById('nameError');
+    const emailError = document.getElementById('emailError');
+    const typeError = document.getElementById('typeError');
+    const messageError = document.getElementById('messageError');
+
+    const isValidEmail = (emailStr) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr);
+    const isValidName = (nameStr) => /^[a-zA-Z\s'-]+$/.test(nameStr);
+
+    const resetErrors = () => {
+        [nameError,emailError,typeError,messageError].forEach(e=>{e.style.display='none';});
+        formMessage.style.display='none';
+    }
+
+    clearBtn.addEventListener('click', () => {
+        form.reset();
+        resetErrors();
+        ratingRow.style.display = 'none';
+        rating.value = '';
+        stars.forEach(s => s.classList.remove('selected'));
+    });
+
+    type.addEventListener('change', () => {
+        if(type.value==='compliment') ratingRow.style.display='flex';
+        else { ratingRow.style.display='none'; rating.value=''; stars.forEach(s=>s.classList.remove('selected')); }
+        validateField(type);
+    });
+
+    stars.forEach(star=>{
+        star.addEventListener('click', ()=>{
+            rating.value = star.dataset.value;
+            stars.forEach(s => s.classList.toggle('selected', s.dataset.value <= rating.value));
         });
-    </script>
+        star.addEventListener('mouseover', ()=>{stars.forEach(s=>s.classList.toggle('selected', s.dataset.value <= star.dataset.value))});
+        star.addEventListener('mouseout', ()=>{stars.forEach(s=>s.classList.toggle('selected', s.dataset.value <= rating.value))});
+    });
+
+    const validateField = (field, showImmediately=true) => {
+        if(field===nameField){
+            if(nameField.value.trim() && !isValidName(nameField.value.trim())){
+                nameError.textContent="Only letters, spaces, hyphens, and apostrophes allowed.";
+                nameError.style.display='block'; return false;
+            } else { nameError.style.display='none'; return true; }
+        }
+        if(field===email){
+            if(showImmediately && email.value.trim() && !isValidEmail(email.value.trim())){
+                emailError.textContent="Please enter a valid email address.";
+                emailError.style.display='block'; return false;
+            } else { emailError.style.display='none'; return true; }
+        }
+        if(field===type){ if(!type.value){ typeError.textContent="Feedback Type is required."; typeError.style.display='block'; return false; } else { typeError.style.display='none'; return true;} }
+        if(field===msg){ if(msg.value.trim()===""){ messageError.textContent="Message cannot be empty."; messageError.style.display='block'; return false;} else { messageError.style.display='none'; return true;} }
+        return true;
+    }
+
+    [nameField,msg,type].forEach(f=>{ 
+        f.addEventListener('input', ()=>validateField(f)); 
+        f.addEventListener('blur', ()=>validateField(f)); 
+    });
+
+    email.addEventListener('blur', ()=>validateField(email, true));
+
+    form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        resetErrors();
+        let fields=[nameField,email,type,msg];
+        let firstInvalid=null;
+        fields.forEach(f=>{if(!validateField(f) && !firstInvalid) firstInvalid=f;});
+        if(firstInvalid){ firstInvalid.focus(); return; }
+
+        const data = new FormData(form);
+        try{
+            const res = await fetch(form.action,{method:"POST", body:data, headers:{"Accept":"application/json"}});
+            if(res.ok){
+                formMessage.textContent="Thank you! Your feedback was submitted successfully.";
+                formMessage.className='success';
+                formMessage.style.display='block';
+                form.reset();
+                ratingRow.style.display='none';
+                rating.value='';
+                stars.forEach(s=>s.classList.remove('selected'));
+                window.scrollTo({top:0, behavior:'smooth'});
+            } else {
+                formMessage.textContent="Error submitting feedback. Please try again.";
+                formMessage.className='error';
+                formMessage.style.display='block';
+                window.scrollTo({top:0, behavior:'smooth'});
+            }
+        } catch {
+            formMessage.textContent="Network error. Please check your internet connection.";
+            formMessage.className='error';
+            formMessage.style.display='block';
+            window.scrollTo({top:0, behavior:'smooth'});
+        }
+    });
+
+});
+</script>
 </body>
 </html>
-
