@@ -5,12 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Blog List</title>
 <style>
-    /* ===== Global Styles (from index.html) ===== */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+    /* ===== Global Styles (matching 1.html) ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -18,63 +14,67 @@
         padding: 20px;
     }
 
+    /* ===== Container ===== */
     .container {
-        max-width: 1200px;
+        max-width: 1100px;
         margin: 0 auto;
         background: white;
         border-radius: 15px;
         box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        overflow: hidden; 
-        padding-bottom: 30px;
+        overflow: hidden;
+        padding-bottom: 20px;
     }
 
-    /* Header */
+    /* ===== Header ===== */
     .header {
         background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
         color: white;
-        padding: 30px;
+        padding: 35px 25px;
         text-align: center;
     }
     .header h1 {
-        font-size: 2.2em;
+        font-size: clamp(1.8rem, 3vw, 2.4rem);
         margin-bottom: 10px;
+        font-weight: 700;
     }
     .header p {
         opacity: 0.9;
-        font-size: 1.1em;
+        font-size: clamp(1rem, 2vw, 1.15rem);
+        max-width: 800px;
+        margin: 0 auto;
     }
 
-    /* ===== Back Button (copied from blogdetails.html) ===== */
+    /* ===== Content Wrapper ===== */
+    .content-wrapper {
+        padding: 30px 25px;
+    }
+
     .back-btn {
         display: inline-block;
-        padding: 10px 20px;
+        padding: 12px 24px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         text-decoration: none;
-        border-radius: 8px;
-        font-size: 1em;
+        border-radius: 10px;
+        font-size: 1rem;
         font-weight: 600;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform .3s ease, box-shadow .3s ease;
         margin-bottom: 25px;
     }
     .back-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102,126,234,0.3);
+        box-shadow: 0 10px 25px rgba(102,126,234,0.35);
     }
 
     /* ===== Blog List ===== */
-    .content-wrapper {
-        padding: 30px;
-    }
-
     #blog-list {
         margin-top: 20px;
     }
 
     .blog-item {
         background: #f8f9fa;
-        padding: 18px 20px;
-        border-radius: 10px;
+        padding: 20px;
+        border-radius: 12px;
         margin-bottom: 15px;
         border-left: 4px solid #667eea;
         transition: box-shadow 0.3s ease, transform 0.2s ease;
@@ -86,8 +86,8 @@
 
     .blog-link {
         text-decoration: none;
-        font-size: 1.2em;
-        font-weight: 600;
+        font-size: 1.2rem;
+        font-weight: 700;
         color: #2c3e50;
         display: block;
     }
@@ -95,21 +95,27 @@
         color: #667eea;
     }
 
-    /* Footer */
+    /* ===== Footer (copied exactly from 1.html) ===== */
     footer {
-        font-size: 0.85em;
+        font-size: 0.85rem;
         color: #555;
-        padding: 20px;
+        margin-top: 40px;
+        padding: 25px;
         border-top: 1px solid #eee;
-        text-align: center;
-        line-height: 1.5;
-        margin-top: 20px;
+        text-align: justify;
+        background: #fafafa;
+        line-height: 1.6;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+        .content-wrapper { padding: 20px; }
+        .back-btn { width: 100%; text-align: center; }
     }
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
     <div class="header">
@@ -118,16 +124,15 @@
     </div>
 
     <div class="content-wrapper">
-
-        <!-- ▼ NEW BACK BUTTON ADDED HERE ▼ -->
-        <a href="index.html" class="back-btn">← Back to Calculators</a> 
-
-        <h2 style="color:#2c3e50; margin-bottom:15px;">All Blog Posts</h2>
+        <a href="index.html" class="back-btn">← Back to Calculators</a>
+        <h2 style="color:#2c3e50; margin-bottom:15px; font-weight:700;">All Blog Posts</h2>
         <div id="blog-list">Loading blogs…</div>
     </div>
 
     <footer>
-        These calculations are based on standard formulas and may not reflect actual outcomes in real-life scenarios. They are provided for reference purposes only and should not be construed as professional advice. Users are encouraged to consult a qualified professional for guidance specific to their individual circumstances.
+        These calculations are based on standard formulas and may not reflect actual outcomes in real-life scenarios.
+        They are provided for reference purposes only and should not be construed as professional advice.
+        Users are encouraged to consult a qualified professional for guidance specific to their individual circumstances.
     </footer>
 
 </div>
@@ -136,7 +141,6 @@
 const BLOG_FOLDER = "/blogs/";
 const MAX_BLOGS = 99;
 
-// Fetch blog title from first Markdown header
 async function getTitle(filename) {
     try {
         const res = await fetch(BLOG_FOLDER + filename);
