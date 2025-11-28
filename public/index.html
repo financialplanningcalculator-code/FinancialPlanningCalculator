@@ -1018,18 +1018,29 @@ document.querySelectorAll('.tab-button').forEach(btn => {
 </style>
 <!--Code added ><!-->
 <style>
-/* Strategy Comparison Chart Mobile Visibility Fix */
+/* Strategy Comparison Chart Mobile Visibility Fix (Revised) */
 @media (max-width: 768px) {
+    /* 1. Ensure the container is set for responsive scaling */
     .chart-container {
-        /* Override the desktop min-height: 400px to allow for a smaller chart on mobile */
-        min-height: 250px !important;
-        /* Ensure the container height is flexible */
-        height: auto !important; 
+        /* Force container to take full width and manage its own height */
+        width: 100% !important; 
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important; /* Critical: Remove any large fixed min-height */
+        
+        /* Best practice for Chart.js responsive containers */
+        position: relative !important; 
     }
     
+    /* 2. Ensure the chart canvas itself is set to auto-scale */
     #comparisonChart {
-        /* Force Chart.js canvas height to auto to respect the chart's aspect ratio and scale correctly */
-        height: auto !important;
+        width: 100% !important;
+        height: auto !important; /* Critical: Let Chart.js determine height based on aspect ratio */
+        display: block !important;
+        
+        /* Reset common Chart.js inline styles that might interfere */
+        min-height: 0 !important;
+        max-height: none !important;
     }
 }
 </style>
