@@ -1044,6 +1044,43 @@ document.querySelectorAll('.tab-button').forEach(btn => {
     }
 }
 </style>
+
+<!--Code fix-->
+<style>
+/* Fix for Centered Future Value Playcard Results */
+
+/* This targets the container holding the result cards, assuming it's a flexbox/grid layout */
+/* If the overall layout is a grid or flex container, this is the most reliable way to center content */
+.strategy-results-cards-container {
+    /* If this is the main container for the cards, you can center the cards themselves: */
+    justify-content: center !important; 
+    align-items: center !important;
+}
+
+/* This targets the specific element that holds the calculated number value */
+/* Based on the code snippet, these are likely the IDs for the final values */
+#comparisonFinalValueA,
+#comparisonFinalValueB,
+#comparisonTotalContributionsA,
+#comparisonTotalContributionsB,
+#comparisonTotalGainsA,
+#comparisonTotalGainsB {
+    /* Center the text inside the element */
+    text-align: center !important;
+    
+    /* Ensure the element takes up enough width to center its content properly */
+    display: block !important; 
+    width: 100% !important;
+}
+
+/* If the values are inside a generic class (e.g., used for all result numbers) */
+.playcard .result-value, 
+.playcard .value-display {
+    text-align: center !important;
+    display: block !important;
+}
+</style>
+
 </head>
 <body>
 <div class="container">
