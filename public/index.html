@@ -1015,7 +1015,25 @@ document.querySelectorAll('.tab-button').forEach(btn => {
   .comparison-results-table { font-size: 0.9em; }
   #comparisonChart { width: 100% !important; height: auto !important; }
 }
-</style></head>
+</style>
+<!--Code added ><!-->
+<style>
+/* Strategy Comparison Chart Mobile Visibility Fix */
+@media (max-width: 768px) {
+    .chart-container {
+        /* Override the desktop min-height: 400px to allow for a smaller chart on mobile */
+        min-height: 250px !important;
+        /* Ensure the container height is flexible */
+        height: auto !important; 
+    }
+    
+    #comparisonChart {
+        /* Force Chart.js canvas height to auto to respect the chart's aspect ratio and scale correctly */
+        height: auto !important;
+    }
+}
+</style>
+</head>
 <body>
 <div class="container">
 <div class="header">
