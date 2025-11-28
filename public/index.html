@@ -1047,40 +1047,41 @@ document.querySelectorAll('.tab-button').forEach(btn => {
 
 <!--Code fix-->
 <style>
-/* Fix for Centered Future Value Playcard Results */
+/* Final Fix for Centered Future Value Playcard Results using Flexbox */
 
-/* This targets the container holding the result cards, assuming it's a flexbox/grid layout */
-/* If the overall layout is a grid or flex container, this is the most reliable way to center content */
-.strategy-results-cards-container {
-    /* If this is the main container for the cards, you can center the cards themselves: */
-    justify-content: center !important; 
-    align-items: center !important;
-}
-
-/* This targets the specific element that holds the calculated number value */
-/* Based on the code snippet, these are likely the IDs for the final values */
+/* Target all the elements that display the calculated numbers */
 #comparisonFinalValueA,
 #comparisonFinalValueB,
 #comparisonTotalContributionsA,
 #comparisonTotalContributionsB,
 #comparisonTotalGainsA,
 #comparisonTotalGainsB {
-    /* Center the text inside the element */
+    /* 1. Make the value element a Flex Container */
+    display: flex !important;
+    
+    /* 2. Center the content horizontally */
+    justify-content: center !important; 
+    
+    /* 3. Center the content vertically (just in case) */
+    align-items: center !important;
+    
+    /* Ensure no residual text alignment is interfering */
     text-align: center !important;
     
-    /* Ensure the element takes up enough width to center its content properly */
-    display: block !important; 
+    /* Ensure the element takes full width of the card for proper centering */
     width: 100% !important;
 }
 
-/* If the values are inside a generic class (e.g., used for all result numbers) */
-.playcard .result-value, 
-.playcard .value-display {
+/* Fallback/Generic Class Targeting (if IDs are wrapped) */
+.playcard .value-display, 
+.playcard .result-value {
+    display: flex !important;
+    justify-content: center !important; 
+    align-items: center !important;
     text-align: center !important;
-    display: block !important;
+    width: 100% !important;
 }
 </style>
-
 </head>
 <body>
 <div class="container">
