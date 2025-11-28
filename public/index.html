@@ -1044,44 +1044,6 @@ document.querySelectorAll('.tab-button').forEach(btn => {
     }
 }
 </style>
-
-<!--Code fix-->
-<style>
-/* Final Fix for Centered Future Value Playcard Results using Flexbox */
-
-/* Target all the elements that display the calculated numbers */
-#comparisonFinalValueA,
-#comparisonFinalValueB,
-#comparisonTotalContributionsA,
-#comparisonTotalContributionsB,
-#comparisonTotalGainsA,
-#comparisonTotalGainsB {
-    /* 1. Make the value element a Flex Container */
-    display: flex !important;
-    
-    /* 2. Center the content horizontally */
-    justify-content: center !important; 
-    
-    /* 3. Center the content vertically (just in case) */
-    align-items: center !important;
-    
-    /* Ensure no residual text alignment is interfering */
-    text-align: center !important;
-    
-    /* Ensure the element takes full width of the card for proper centering */
-    width: 100% !important;
-}
-
-/* Fallback/Generic Class Targeting (if IDs are wrapped) */
-.playcard .value-display, 
-.playcard .result-value {
-    display: flex !important;
-    justify-content: center !important; 
-    align-items: center !important;
-    text-align: center !important;
-    width: 100% !important;
-}
-</style>
 </head>
 <body>
 <div class="container">
