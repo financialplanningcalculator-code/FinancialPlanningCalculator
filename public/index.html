@@ -1018,22 +1018,29 @@ document.querySelectorAll('.tab-button').forEach(btn => {
 </style>
 <!--Code added ><!-->
 <style>
-/* Strategy Comparison Chart Mobile Visibility Fix (Final Attempt) */
+/* Strategy Comparison Chart Mobile Visibility Fix (Controlled Height) */
 @media (max-width: 768px) {
-    /* 1. Ensure the container scales responsively and removes fixed constraints */
+    /* 1. Container: Define a controlled height using viewport units (vh) */
     .chart-container {
         width: 100% !important; 
-        height: auto !important; /* Force flexible height */
-        min-height: 250px !important; /* Set a reasonable minimum height for visibility */
-        max-height: none !important;
+        
+        /* Set height to 40% of the viewport height (e.g., screen height) */
+        height: 40vh !important; 
+        
+        /* Ensure it's never smaller than 250px and never larger than 450px */
+        min-height: 250px !important; 
+        max-height: 450px !important; 
+        
         position: relative !important; 
     }
     
-    /* 2. Ensure the chart canvas itself is set to auto-scale */
+    /* 2. Chart Canvas: Ensure it fills the controlled container */
     #comparisonChart {
         width: 100% !important;
-        height: 100% !important; /* Crucial: Make canvas fill the container (which now has min-height) */
+        height: 100% !important; /* Fills the container's controlled height and width */
         display: block !important;
+        
+        /* Important: remove any conflicting min/max height properties from the canvas */
         min-height: 0 !important;
         max-height: none !important;
     }
