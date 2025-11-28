@@ -1045,26 +1045,6 @@ document.querySelectorAll('.tab-button').forEach(btn => {
     }
 }
 </style>
-<!--SECOND FIX-->
-<style>
-/* Fix for Right-Aligned Future Value Playcard Results */
-
-/* Target the elements that display the calculated Future Values */
-/* You might need to adjust the class name '.result-text' if your HTML uses a different class for the value numbers */
-.playcard .result-text, 
-.playcard .value-display, 
-.future-value-display {
-    /* Force text alignment to the left */
-    text-align: left !important;
-}
-
-/* If the value is a specific element ID, target it directly */
-#comparisonFinalValueA,
-#comparisonFinalValueB {
-    text-align: left !important;
-    display: block !important; /* Ensure it takes up enough space to align left */
-}
-</style>
 </head>
 <body>
 <div class="container">
